@@ -4,15 +4,6 @@
 #include <errno.h>
 #include <sys/types.h>
 
-/// sockets =>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/un.h>
-
 /// select =>
 #include <sys/time.h>
 #include <sys/select.h>
@@ -23,6 +14,8 @@
 /// componentes =>
 #include "logger.h"
 #include "menu.h"
+#include "tcpServer.h"
+#include "connectionHandler.h"
 
 /// constantes =>
 #define PORT 3456

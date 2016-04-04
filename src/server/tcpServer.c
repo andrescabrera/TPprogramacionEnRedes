@@ -1,3 +1,21 @@
+/// sockets =>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <sys/un.h>
+
+#define PORT 3456
+
+typedef struct argumentosThread
+{
+    int socketDescriptor;
+} strarg;
+
+int tcp_socket_server, udp_socket_server, unix_socket_server, maxfd; ///< Descriptores tanto para TCP, UDP y Unix.
+
 ///@brief Crea el socket, Configura las opciones, enlaza el puerto a la interface y pone el socket a la escucha de conexiones entrantes.
 int start_tcp_server()
 {

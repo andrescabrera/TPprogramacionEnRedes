@@ -45,3 +45,4 @@ void logger(const char *text)
 void cerrarLogger()
 {
     close(fdLogger);
+}

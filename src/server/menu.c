@@ -1,10 +1,12 @@
+#include "menu.h"
+
 void menuGUI()
 {
-    printf("\t\t----------------MENU------------------\n\n");
-    printf("1-Mostrar la opcion uno\n");
-    printf("2-Mostrar la opcion dos\n");
-    printf("3-Mostrar la opcion tres\n");
-    printf("4-Salir\n");
+    logger("\t\t----------------MENU------------------\n\n");
+    logger("1-Mostrar la opcion uno\n");
+    logger("2-Mostrar la opcion dos\n");
+    logger("3-Mostrar la opcion tres\n");
+    logger("4-Salir\n");
 }
 
 //THREAD para manejar el menu del servidor
@@ -25,7 +27,7 @@ void *menu_servidor()
         switch (option)
         {
         case '1':
-            printf("Usted eligio la opcion 1: %d\n", cantidadDeClientesConectados);
+            printf("Usted eligio la opcion 1:\n");
             printf("\n\nPresione cualquier tecla para continuar\n");
             getchar();
             break;

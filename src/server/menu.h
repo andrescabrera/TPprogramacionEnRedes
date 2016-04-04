@@ -4,3 +4,6 @@
 void *menu_servidor();
 
 #endif
+
+#include <stdio.h>
+#include <stdlib.h>
