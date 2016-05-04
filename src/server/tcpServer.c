@@ -6,15 +6,12 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/un.h>
+#include <sys/socket.h>
 
 #define PORT 3456
 
-typedef struct argumentosThread
-{
-    int socketDescriptor;
-} strarg;
-
-int tcp_socket_server, udp_socket_server, unix_socket_server, maxfd; ///< Descriptores tanto para TCP, UDP y Unix.
+int maxfd;
+int tcp_socket_server;
 
 ///@brief Crea el socket, Configura las opciones, enlaza el puerto a la interface y pone el socket a la escucha de conexiones entrantes.
 int start_tcp_server()
@@ -80,4 +77,12 @@ void stop_tcp_server()
 {
     close(tcp_socket_server);
     logger("TCP server stopped");
+}
+
+int getTcpSocketServer() {
+    return tcp_socket_server;
+}
+
+int getMaxFd() {
+    return maxfd;
 }

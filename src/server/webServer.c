@@ -20,8 +20,9 @@
 /// constantes =>
 #define PORT 3456
 
-int cantidadDeClientesConectados = 0;
-int cantidadDeArchivosTransferidos = 0;
+int tcp_socket_server;
+
+void stop_main();
 
 int main(int argc, char *argv[])
 {
@@ -43,4 +44,9 @@ int main(int argc, char *argv[])
     stop_main();
     cerrarLogger();
     return EXIT_SUCCESS;
+}
+
+void stop_main()
+{
+    stop_tcp_server();
 }

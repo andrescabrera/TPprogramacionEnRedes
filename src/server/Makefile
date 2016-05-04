@@ -1,13 +1,18 @@
-CC=gcc
-CFLAGS=-lpthread 
-webServer: webServer.o tcpServer.o logger.o menu.o connectionHandler.o
-webServer.o: webServer.c tcpServer.h logger.h menu.h connectionHandler.h
-	$(CC) $(CFLAGS) -c -o webServer.o webServer.c
+CC     = gcc
+DEBUG  = -ggdb3
+#CFLAGS = $(DEBUG) -Wall -pthread 
+#LDLIBS = -lpthread -ldb
+LDLIBS = -lpthread
+webServer: webServer.o tcpServer.o logger.o menu.o connectionHandler.o threads.o $(CFLAGS) $(LDLIBS)
+webServer.o: webServer.c tcpServer.h logger.h menu.h connectionHandler.h tipos.h
+	$(CC) -c $(CFLAGS) -o webServer.o webServer.c $(LDFLAGS)
 menu.o: menu.c menu.h logger.h
-	$(CC) $(CFLAGS) -c -o menu.o menu.c
+	$(CC) -c $(CFLAGS) -o menu.o menu.c $(LDFLAGS)
 logger.o: ../logger/logger.c logger.h
-	$(CC) $(CFLAGS) -c -o logger.o logger.c
+	$(CC) -c $(CFLAGS) -o logger.o ../logger/logger.c $(LDFLAGS)
 tcpServer.o: tcpServer.c tcpServer.h
-	$(CC) $(CFLAGS) -c -o tcpServer.o tcpServer.c
+	$(CC) -c $(CFLAGS) -o tcpServer.o tcpServer.c $(LDFLAGS)
 connectionHandler.o: connectionHandler.c connectionHandler.h
-	$(CC) $(CFLAGS) -c -o connectionHandler.o connectionHandler.c
+	$(CC) -c $(CFLAGS) -o connectionHandler.o connectionHandler.c $(LDFLAGS)
+threads.o: threads.c threads.h
+	$(CC) -c $(CFLAGS) -o threads.o threads.c $(LDFLAGS)

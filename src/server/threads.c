@@ -1,40 +1,36 @@
-//
-//  threads.c
-//  pthreads
-//
-//  Created by Diego Marafetti on 3/28/16.
-//  Copyright (c) 2016 diego. All rights reserved.
-//
+#include "threads.h"
 
-#include <stdio.h>
-#include <unistd.h>
-#include <pthread.h>
+typedef struct argumentosThread
+{
+    int socketDescriptor;
+} strarg;
 
+void lanzarThread(int socket_server)
+{
+    pthread_t unThread;
+    pthread_attr_t atributos;
 
-void *printNumbers(void *args) {
-
-    pthread_t hThread = pthread_self();
-    
-    for(int i = 0; i < 1000; i++) {
-    
-        printf("thread %ld: %d\n", (long)hThread, i);
+    if (pthread_attr_init(&atributos) != 0)
+    {
+        logger("Problema al inicializar los atributos del thread");
+        exit(1);
     }
-    return NULL;
+
+    strarg *argumentos;
+    argumentos = (strarg*)calloc(1, sizeof(strarg));
+    argumentos->socketDescriptor = socket_server;
+
+    if((pthread_create(&unThread, &atributos, atenderPeticion, (void *)argumentos)) != 0)
+    {
+        logger("Problema al iniciar el thread");
+    }
 }
 
+void *atenderPeticion (void *argumentos)
+{
+    logger("atenderPeticion");
 
+    // TODO Recibir mensaje HTTP
 
-int main(int argc, const char * argv[]) {
-    
-    pthread_t thread1;
-    pthread_t thread2;
-    
-    pthread_create(&thread1, NULL, printNumbers, NULL);
-    pthread_create(&thread2, NULL, printNumbers, NULL);
-    
-    pthread_join(thread1, NULL);
-    pthread_join(thread2, NULL);
-    
-
-    return 0;
+    return NULL;
 }
