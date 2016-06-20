@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include "db-api.h"
+#include "db-access.h"
 
 void atenderPeticion(int socket);
 
