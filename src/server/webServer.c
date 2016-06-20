@@ -20,8 +20,6 @@
 /// constantes =>
 #define PORT 3456
 
-int tcp_socket_server;
-
 void stop_main();
 
 int main(int argc, char *argv[])

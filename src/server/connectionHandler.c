@@ -60,7 +60,7 @@ void listen_and_accept_new_clients()
         tv.tv_sec = 30;
         tv.tv_usec = 0;
         result = select(mMaxFd + 1, &tempset, NULL, NULL, &tv);
-        printf("maxFd = %d", mMaxFd);
+        
         if (result == 0)
         {
             logger("select() timed out!\n");

@@ -33,7 +33,7 @@ void logger(const char *text)
     struct tm *tlocal = localtime(&tiempo);
     char fechaHora[128];
     strftime(fechaHora, 128, "%d/%m/%y %H:%M:%S", tlocal);
-    char buffer[256];
+    char buffer[8092];
     sprintf(buffer, "%s [%ld] %s\n", fechaHora, getpid(), text);
     if (write(fdLogger, buffer, strlen(buffer)) == -1)
     {
