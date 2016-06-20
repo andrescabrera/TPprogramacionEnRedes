@@ -18,9 +18,6 @@
 #include "connectionHandler.h"
 #include "db-api.h"
 
-/// constantes =>
-#define PORT 3456
-
 void stop_main();
 void init_data (DB *dbp);
 

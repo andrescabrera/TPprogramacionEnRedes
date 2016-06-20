@@ -1,18 +1,19 @@
 #include "peticion.h"
 
 int readMessage(int socketDescriptorCliente, char *mensaje);
+int sendMessage(int socketDescriptorCliente, char *mensaje);
 char *substring(char *unString, int start, int end);
-void processMessage(char *mensaje);
+void processPath(char *path, int socketDescriptorCliente);
 
 void atenderPeticion(int socketDescriptor)
 {
-    char *message = malloc(8092);
+    char *path = malloc(8092);
     char logMessage[256];
     int salida = 0;
     
     do
     {
-        salida = readMessage(socketDescriptor, message);
+        salida = readMessage(socketDescriptor, path);
         if(salida == -1)
         {
             sprintf(logMessage, "ERROR: Cliente %d desconectado abruptamente. Cerrando thread\n", socketDescriptor);
@@ -22,10 +23,15 @@ void atenderPeticion(int socketDescriptor)
             sprintf(logMessage, "Cliente %d desconectado de forma normal.\n", socketDescriptor);
         }
         logger(logMessage);
-        processMessage(message);
+        processPath(path, socketDescriptor);
     }
-    while(salida > 0);  //TODO El corte debería ser el error de read_message, por ejemplo que se desconecto el cliente es un 0...
-    //FD_CLR(argumentosDelThread->socketDescriptor, &readset);
+    while(salida > 0);
+    //FD_CLR(socketDescriptor, &readset);
+}
+
+int sendMessage(int clientSocketDescriptor, char *message)
+{
+     send(clientSocketDescriptor, message, strlen(message), 0);
 }
 
 int readMessage(int clientSocketDescriptor, char *message)
@@ -46,11 +52,14 @@ int readMessage(int clientSocketDescriptor, char *message)
     return result;
 }
 
-void processMessage(char *message)
+void processPath(char *path, int socketDescriptor)
 {
     printf("funcion processMessage\n");
     printf("Full Message:\n");
-    logger(message);
+    logger(path);
+    // TODO get Absolute path from BerkleyDB
+    char absolutePath[256] = "absolute path";
+    sendMessage(socketDescriptor, absolutePath);
 }
 
 char *substring(char *unString, int start, int end) {

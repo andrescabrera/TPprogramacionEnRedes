@@ -5,7 +5,11 @@ typedef struct argumentosThread
     int socketDescriptor;
 } strarg;
 
-int readHttpMessage(int socketDescriptorCliente, char *mensajeHTTP);
+#define PUERTO_DESTINO 3457
+#define IP_DESTINO "127.0.0.1"
+
+int sendPathToIndexProcess(char *path); // se conecta, envia el path y devuelve el socket
+int readMessage(int socketDescriptorCliente, char *mensajeHTTP);
 char *substring(char *unString, int start, int end);
 void processHttpMessage(char *mensajeHTTP);
 
@@ -39,7 +43,7 @@ void *atenderPeticion (void *arguments)
     
     do
     {
-        salida = readHttpMessage(threadArguments->socketDescriptor, httpMessage);
+        salida = readMessage(threadArguments->socketDescriptor, httpMessage);
         if(salida == -1)
         {
             sprintf(logMessage, "ERROR: Cliente %d desconectado abruptamente. Cerrando thread\n", threadArguments->socketDescriptor);;;
@@ -56,19 +60,19 @@ void *atenderPeticion (void *arguments)
     return NULL;
 }
 
-int readHttpMessage(int clientSocketDescriptor, char *httpMessage)
+int readMessage(int clientSocketDescriptor, char *message)
 {
     int bufferSize = 256;
     char buffer[bufferSize];
     int result;
     int retorno;
-    logger("funcion readHttpMessage");
+    logger("funcion readMessage");
     
     do
     {
         memset(buffer, '\0', bufferSize);
         result = read(clientSocketDescriptor, buffer, bufferSize);
-        strcat(httpMessage, buffer);
+        strcat(message, buffer);
     }
     while (result != -1 && result == bufferSize && errno != EINTR);
     return result;
@@ -92,9 +96,45 @@ void processHttpMessage(char *httpMessage)
             i++;
         }
 
-        char *path = substring(httpMessage, 4, i - 10);
+        char *path = substring(httpMessage, 5, i - 10);
         logger(path);
+        int sockIndexProcess = sendPathToIndexProcess(path);
+        char *realPath;
+        readMessage(sockIndexProcess, realPath);
+        logger("Tengo que leer el archivo desde disco (TODO)");
+        logger(realPath);
     }
+}
+
+int sendPathToIndexProcess(char *path)
+{
+    struct sockaddr_in server;
+    int sock;
+    
+    // mando el path al indexProcess via Sockets
+    ///@brief Creo el socket para el cliente
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    {
+        perror("Error al crear socket cliente");
+        logger("Error al crear el socket cliente.");
+        exit(EXIT_FAILURE);
+    }
+
+    server.sin_addr.s_addr = inet_addr(IP_DESTINO);
+    server.sin_family = AF_INET;
+    server.sin_port = htons(PUERTO_DESTINO);
+
+    ///@brief Enlazo con el servidor
+    if (connect(sock, (struct sockaddr *)&server, sizeof(server)) == -1)
+    {
+        perror("Error en la conexion");
+        logger("Error en la conexion al servidor.");
+        exit(EXIT_FAILURE);
+    }
+    
+    send (sock, path, strlen(path), 0);
+    
+    return sock;
 }
 
 char *substring(char *unString, int start, int end) {
