@@ -62,10 +62,10 @@ void stop_main()
 void init_data (DB *dbp) 
 {
 	// add values (DB, key, value)
-	set(dbp, "threads.c", "/home/ubuntu/workspace/src/ejemplos/threads.c");
-	set(dbp, "indexProcess.c", "/home/ubuntu/workspace/src/ejemplos/indexProcess.c");
-	set(dbp, "logger.c", "/home/ubuntu/workspace/src/ejemplos/logger.c");
-	set(dbp, "holamundo.txt", "/home/ubuntu/workspace/src/ejemplos/holamundo.txt");
+	set(dbp, "ejemplo1.html", "ejemplo.andres");
+	set(dbp, "image1.jpg", "/resources/ejemplo2.html");
+	set(dbp, "image2.jpg", "/resources/ejem3.html");
+	set(dbp, "image3.jpg", "/resources/ejem4.html");
 }
 
 void get_value_from_request_key(char *key, char *value)

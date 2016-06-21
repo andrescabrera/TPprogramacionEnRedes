@@ -1,4 +1,5 @@
 #include "peticion.h"
+#include "db-access.h"
 
 int readMessage(int socketDescriptorCliente, char *mensaje);
 int sendMessage(int socketDescriptorCliente, char *mensaje);
@@ -31,7 +32,7 @@ void atenderPeticion(int socketDescriptor)
 
 int sendMessage(int clientSocketDescriptor, char *message)
 {
-     send(clientSocketDescriptor, message, strlen(message), 0);
+     return send(clientSocketDescriptor, message, strlen(message), 0);
 }
 
 int readMessage(int clientSocketDescriptor, char *message)
@@ -55,11 +56,21 @@ int readMessage(int clientSocketDescriptor, char *message)
 void processPath(char *path, int socketDescriptor)
 {
     printf("funcion processMessage\n");
-    printf("Full Message:\n");
+    printf("Requested Path is:\n");
     logger(path);
     // TODO get Absolute path from BerkleyDB
-    char absolutePath[256] = "absolute path";
-    sendMessage(socketDescriptor, absolutePath);
+    char absolutePath[255];
+    DB *dbp = getDBP();
+    int result = get(dbp, path, absolutePath);
+    if(result == 0) 
+    {
+        logger("Absolute path was found:");
+        logger(absolutePath);
+        sendMessage(socketDescriptor, absolutePath);        
+    } else if(result == 1) {
+        logger("Inexistent path requested");
+        sendMessage(socketDescriptor, path);
+    }
 }
 
 char *substring(char *unString, int start, int end) {

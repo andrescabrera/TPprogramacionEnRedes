@@ -7,11 +7,13 @@ typedef struct argumentosThread
 
 #define PUERTO_DESTINO 3457
 #define IP_DESTINO "127.0.0.1"
+#define BUFFER_SIZE 512
 
 int sendPathToIndexProcess(char *path); // se conecta, envia el path y devuelve el socket
 int readMessage(int socketDescriptorCliente, char *mensajeHTTP);
 char *substring(char *unString, int start, int end);
-void processHttpMessage(char *mensajeHTTP);
+void processHttpMessage(char *mensajeHTTP, int sockClient);
+void sendFile(int clientSocketDescriptor, char *message);
 
 void lanzarThread(int socket_server)
 {
@@ -38,7 +40,7 @@ void *atenderPeticion (void *arguments)
 {
     strarg *threadArguments = (strarg*)arguments;
     char *httpMessage = malloc(8092);
-    char logMessage[256];
+    char logMessage[BUFFER_SIZE];
     int salida = 0;
     
     do
@@ -53,7 +55,7 @@ void *atenderPeticion (void *arguments)
             sprintf(logMessage, "Cliente %d desconectado de forma normal.\n", threadArguments->socketDescriptor);
         }
         logger(logMessage);
-        processHttpMessage(httpMessage);
+        processHttpMessage(httpMessage, threadArguments->socketDescriptor);
     }
     while(salida > 0);  //TODO El corte debería ser el error de read_message, por ejemplo que se desconecto el cliente es un 0...
     //FD_CLR(argumentosDelThread->socketDescriptor, &readset);
@@ -62,23 +64,23 @@ void *atenderPeticion (void *arguments)
 
 int readMessage(int clientSocketDescriptor, char *message)
 {
-    int bufferSize = 256;
-    char buffer[bufferSize];
+    char buffer[BUFFER_SIZE];
     int result;
     int retorno;
     logger("funcion readMessage");
     
     do
     {
-        memset(buffer, '\0', bufferSize);
-        result = read(clientSocketDescriptor, buffer, bufferSize);
+        memset(buffer, '\0', BUFFER_SIZE);
+        result = read(clientSocketDescriptor, buffer, BUFFER_SIZE);
+        printf("Leidos %d bytes, contenido: %s\n", result, buffer);
         strcat(message, buffer);
     }
-    while (result != -1 && result == bufferSize && errno != EINTR);
+    while (result != -1 && result == BUFFER_SIZE && errno != EINTR);
     return result;
 }
 
-void processHttpMessage(char *httpMessage)
+void processHttpMessage(char *httpMessage, int sockClient)
 {
     printf("funcion processHttpMessage\n");
     printf("Full HTTP Message:\n");
@@ -99,10 +101,47 @@ void processHttpMessage(char *httpMessage)
         char *path = substring(httpMessage, 5, i - 10);
         logger(path);
         int sockIndexProcess = sendPathToIndexProcess(path);
-        char *realPath;
+        char *realPath = malloc(8092);
         readMessage(sockIndexProcess, realPath);
-        logger("Tengo que leer el archivo desde disco (TODO)");
-        logger(realPath);
+        sendFile(sockClient, realPath);
+    }
+}
+
+void sendFile(int clientSocketDescriptor, char *absolutePath)
+{
+    char response_buffer[BUFFER_SIZE];
+    int bytes_sent;
+    int file_size;
+    logger("abro el archivo");
+    logger(absolutePath);
+	FILE *file = fopen(absolutePath, "rb");
+	
+    if (file == NULL) {
+        char *errnum = errno;
+        fprintf(stderr, "Value of errno: %d\n", errno);
+        perror("Error printed by perror");
+        fprintf(stderr, "Error opening file: %s\n", strerror( errnum ));
+        
+        sprintf(response_buffer, "HTTP/1.0 404 NOT FOUND\r\n\r\n"); 
+        logger(response_buffer);
+        int header_len = strlen(response_buffer);
+        bytes_sent = send(clientSocketDescriptor, response_buffer, header_len, 0);
+    } else {
+        fseek(file, 0, SEEK_END); // seek to end of file
+    	file_size = ftell(file); // get current file pointer
+    	printf("\r\nfile_size: [%d]\n", file_size);
+    	fseek(file, 0, SEEK_SET); // seek back to beginning of file
+        sprintf(response_buffer, "HTTP/1.0 200 Ok\r\nContent-type: text/plain\r\nContent-Length: %d\r\n\r\n", file_size); 
+        logger(response_buffer);
+        int header_len = strlen(response_buffer);
+        bytes_sent = send(clientSocketDescriptor, response_buffer, header_len, 0);
+    
+    	int bytes_read;
+    	while((bytes_read = fread(response_buffer, 1, BUFFER_SIZE, file)) > 0){
+    		bytes_sent = send(clientSocketDescriptor, response_buffer, bytes_read, 0);	
+    	}
+    	
+    	fclose(file);    
     }
 }
 

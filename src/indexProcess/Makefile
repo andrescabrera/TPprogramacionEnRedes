@@ -12,7 +12,7 @@ tcpServer.o: tcpServer.c tcpServer.h
 	$(CC) -c $(CFLAGS) -o tcpServer.o tcpServer.c $(LDLIBS)
 connectionHandler.o: connectionHandler.c connectionHandler.h
 	$(CC) -c $(CFLAGS) -o connectionHandler.o connectionHandler.c $(LDLIBS)
-peticion.o: peticion.c peticion.h db-api.h
+peticion.o: peticion.c peticion.h db-access.h
 	$(CC) -c $(CFLAGS) -o peticion.o peticion.c $(LDLIBS)
 db-access.o: db-access.c db-access.h
-	$(CC) -c $(CFLAGS) -o db-api.o db-api.c $(LDLIBS)
+	$(CC) -c $(CFLAGS) -o db-access.o db-access.c $(LDLIBS)
